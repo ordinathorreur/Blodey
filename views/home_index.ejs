@@ -1,4 +1,7 @@
 <h1><%= title %></h1>
-<p>
-  Body goes here
-</p>
+<% for(var i=0; i<articles.length; i++) {%>
+ <article>
+    <h1><%= articles[i].title %></h1>
+    <p><%= articles[i].body %></p>
+ </article>
+<% } %>

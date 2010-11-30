@@ -1,5 +1,5 @@
 (function() {
-  var app, express;
+  var Blog, app, express;
   express = require("express");
   app = express.createServer();
   app.configure(function() {
@@ -18,10 +18,24 @@
   app.configure('development', function() {
     return app.use(express.errorHandler());
   });
+  Blog = {};
+  Blog.data = {
+    title: "Blog main title",
+    articles: [
+      {
+        title: "Blog 1",
+        body: "Blog 1 body"
+      }, {
+        title: "Blog 2",
+        body: "Blog 2 body"
+      }
+    ]
+  };
   app.get('/', function(req, res) {
     return res.render('home_index', {
       locals: {
-        title: "Some title"
+        title: Blog.data.title,
+        articles: Blog.data.articles
       }
     });
   });

@@ -20,12 +20,20 @@ app.configure('development', () ->
     app.use express.errorHandler()
 )
 
+## DATA
+
+Blog = {}
+Blog.data =
+	title: "Blog main title"
+	articles:[{title: "Blog 1", body: "Blog 1 body"}, {title: "Blog 2",  body: "Blog 2 body"}]
+
 ## ROUTING
 
 app.get('/', (req, res) ->
 	res.render 'home_index',
 		locals: {
-			title: "Page Title"
+			title: Blog.data.title
+			articles: Blog.data.articles
 		}
 )
 
