@@ -1,5 +1,5 @@
 (function() {
-  var Blog, app, express;
+  var ArticleProvider, app, articleProvider, express;
   express = require("express");
   app = express.createServer();
   app.configure(function() {
@@ -18,45 +18,48 @@
   app.configure('development', function() {
     return app.use(express.errorHandler());
   });
-  Blog = {};
-  Blog.data = {
-    title: "Blog main title",
-    articles: [
-      {
-        id: "1",
-        title: "Article 1",
-        body: "Article 1 body"
-      }, {
-        id: "2",
-        title: "Article 2",
-        body: "Article 2 body"
-      }
-    ]
-  };
+  ArticleProvider = require('./articleprovider-memory').ArticleProvider;
+  articleProvider = new ArticleProvider();
+  articleProvider.save([
+    {
+      _id: "1",
+      title: 'ArticleProvider Article one',
+      body: 'Body one'
+    }, {
+      _id: "2",
+      title: 'ArticleProvider Article two',
+      body: 'Body two'
+    }, {
+      _id: "3",
+      title: 'ArticleProvider Article three',
+      body: 'Body three'
+    }
+  ], function(error, articles) {});
   app.get('/', function(req, res) {
-    return res.render('home_index', {
-      locals: {
-        title: Blog.data.title,
-        articles: Blog.data.articles
-      }
+    return articleProvider.findAll(function(error, articles) {
+      return res.render('home_index', {
+        locals: {
+          title: "Main Blog Title",
+          articles: articles
+        }
+      });
     });
   });
   app.get('/articles/new', function(req, res) {
     return res.render('articles_new');
   });
   app.get('/articles/:id', function(req, res) {
-    var article, requestedArticle, _i, _len, _ref;
-    _ref = Blog.data.articles;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      article = _ref[_i];
-      if (article.id === req.params.id) {
-        requestedArticle = article;
-        break;
-      }
-    }
-    return res.render('articles_show', {
-      locals: {
-        article: requestedArticle
+    return articleProvider.findByID(req.params.id, function(error, article) {
+      if (article != null) {
+        return res.render('articles_show', {
+          locals: {
+            article: article
+          }
+        });
+      } else {
+        return res.render('404', {
+          status: 404
+        });
       }
     });
   });
@@ -68,7 +71,14 @@
     if (req.body.article.body == null) {
       res.send("No body");
     }
-    return res.send("OK, we have article params");
+    return articleProvider.save([
+      {
+        title: req.body.article.title,
+        body: req.body.article.body
+      }
+    ], function(error, articles) {
+      return res.send("OK, we have saved a new article");
+    });
   });
   app.listen(3000);
 }).call(this);

@@ -1,4 +1,5 @@
 express = (require "express")
+
 app = express.createServer()
 
 ## CONFIG
@@ -13,29 +14,35 @@ app.configure(()->
 )
 # Development Environment Config
 app.configure('development', () ->
-    app.use express.errorHandler({ dumpExceptions: true, showStack: true })
+	app.use express.errorHandler({ dumpExceptions: true, showStack: true })
 )
 # Production Environmnet Config
 app.configure('development', () ->
-    app.use express.errorHandler()
+	app.use express.errorHandler()
 )
 
 ## DATA
-
-Blog = {}
-Blog.data =
-	title: "Blog main title"
-	articles:[{id: "1", title: "Article 1", body: "Article 1 body"}, {id: "2", title: "Article 2",  body: "Article 2 body"}]
+ArticleProvider = require('./articleprovider-memory').ArticleProvider
+articleProvider = new ArticleProvider()
+articleProvider.save([
+  {_id: "1", title: 'ArticleProvider Article one', body: 'Body one'},
+  {_id: "2", title: 'ArticleProvider Article two', body: 'Body two'},
+  {_id: "3", title: 'ArticleProvider Article three', body: 'Body three'}
+], (error, articles) ->)
 
 ## ROUTING
 
 # Root
 app.get('/', (req, res) ->
-	res.render 'home_index',
+
+	articleProvider.findAll( (error, articles) ->
+		res.render 'home_index',
 		locals: {
-			title: Blog.data.title
-			articles: Blog.data.articles
+			title: "Main Blog Title"
+			articles: articles
 		}
+  )
+
 )
 
 # GET /articles/new
@@ -46,17 +53,18 @@ app.get('/articles/new', (req, res) ->
 # GET /articles/1
 app.get('/articles/:id', (req, res) ->
 	
-	# Find the requested article
-	for article in Blog.data.articles
-		if article.id is req.params.id
-			requestedArticle = article
-			break
-
-	# render the template
-	res.render 'articles_show',
-		locals: {
-			article: requestedArticle
-		}
+	# find and render the article in the callback
+	articleProvider.findByID(req.params.id, (error, article)->
+		if article?
+			# render the template
+			res.render 'articles_show',
+				locals: {
+					article: article
+				}
+		else
+			res.render '404', status: 404
+	)
+		
 )
 
 # POST /articles
@@ -69,8 +77,10 @@ app.post('/articles', (req, res) ->
 	res.send "No title" unless req.body.article.title?
 	res.send "No body" unless req.body.article.body?
 	
-	# now create a new article	
-	res.send "OK, we have article params"
+	articleProvider.save([{title: req.body.article.title, body: req.body.article.body}], 
+	(error, articles) -> res.send "OK, we have saved a new article"
+	)
+
 )
 
 # Listen to port
