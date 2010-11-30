@@ -23,11 +23,13 @@
     title: "Blog main title",
     articles: [
       {
-        title: "Blog 1",
-        body: "Blog 1 body"
+        id: "1",
+        title: "Article 1",
+        body: "Article 1 body"
       }, {
-        title: "Blog 2",
-        body: "Blog 2 body"
+        id: "2",
+        title: "Article 2",
+        body: "Article 2 body"
       }
     ]
   };
@@ -38,6 +40,35 @@
         articles: Blog.data.articles
       }
     });
+  });
+  app.get('/articles/new', function(req, res) {
+    return res.render('articles_new');
+  });
+  app.get('/articles/:id', function(req, res) {
+    var article, requestedArticle, _i, _len, _ref;
+    _ref = Blog.data.articles;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      article = _ref[_i];
+      if (article.id === req.params.id) {
+        requestedArticle = article;
+        break;
+      }
+    }
+    return res.render('articles_show', {
+      locals: {
+        article: requestedArticle
+      }
+    });
+  });
+  app.post('/articles', function(req, res) {
+    console.log(req.body.article);
+    if (req.body.article.title == null) {
+      res.send("No title");
+    }
+    if (req.body.article.body == null) {
+      res.send("No body");
+    }
+    return res.send("OK, we have article params");
   });
   app.listen(3000);
 }).call(this);

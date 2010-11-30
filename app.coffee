@@ -25,16 +25,52 @@ app.configure('development', () ->
 Blog = {}
 Blog.data =
 	title: "Blog main title"
-	articles:[{title: "Blog 1", body: "Blog 1 body"}, {title: "Blog 2",  body: "Blog 2 body"}]
+	articles:[{id: "1", title: "Article 1", body: "Article 1 body"}, {id: "2", title: "Article 2",  body: "Article 2 body"}]
 
 ## ROUTING
 
+# Root
 app.get('/', (req, res) ->
 	res.render 'home_index',
 		locals: {
 			title: Blog.data.title
 			articles: Blog.data.articles
 		}
+)
+
+# GET /articles/new
+app.get('/articles/new', (req, res) ->
+	res.render 'articles_new'
+)
+
+# GET /articles/1
+app.get('/articles/:id', (req, res) ->
+	
+	# Find the requested article
+	for article in Blog.data.articles
+		if article.id is req.params.id
+			requestedArticle = article
+			break
+
+	# render the template
+	res.render 'articles_show',
+		locals: {
+			article: requestedArticle
+		}
+)
+
+# POST /articles
+app.post('/articles', (req, res) ->
+	
+	# log the article params to the console
+	console.log req.body.article;
+	
+	# do some simple validation
+	res.send "No title" unless req.body.article.title?
+	res.send "No body" unless req.body.article.body?
+	
+	# now create a new article	
+	res.send "OK, we have article params"
 )
 
 # Listen to port
