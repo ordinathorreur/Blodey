@@ -6,7 +6,8 @@
     app.use(express.methodOverride());
     app.use(express.bodyDecoder());
     app.use(app.router);
-    return app.use(express.staticProvider(__dirname + '/public'));
+    app.use(express.staticProvider(__dirname + '/public'));
+    return app.set('view engine', 'ejs');
   });
   app.configure('development', function() {
     return app.use(express.errorHandler({
@@ -15,13 +16,14 @@
     }));
   });
   app.configure('development', function() {
-    return app.use(express.errorHandler({
-      dumpExceptions: true,
-      showStack: true
-    }));
+    return app.use(express.errorHandler());
   });
   app.get('/', function(req, res) {
-    return res.send('hello world');
+    return res.render('home_index', {
+      locals: {
+        title: "Some title"
+      }
+    });
   });
   app.listen(3000);
 }).call(this);

@@ -9,6 +9,7 @@ app.configure(()->
 	app.use express.bodyDecoder()
 	app.use app.router
 	app.use express.staticProvider(__dirname + '/public')
+	app.set('view engine', 'ejs')
 )
 # Development Environment Config
 app.configure('development', () ->
@@ -22,7 +23,10 @@ app.configure('development', () ->
 ## ROUTING
 
 app.get('/', (req, res) ->
-	res.send 'hello world'
+	res.render 'home_index',
+		locals: {
+			title: "Page Title"
+		}
 )
 
 # Listen to port
