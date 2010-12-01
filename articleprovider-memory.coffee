@@ -1,4 +1,4 @@
-# Adapted from an idea over at: http://howtonode.org/express-mongodb
+# Adapted from: http://howtonode.org/express-mongodb
 class ArticleProvider
 	
 	constructor: () ->

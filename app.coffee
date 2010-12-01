@@ -28,13 +28,9 @@ app.configure('development', () ->
 )
 
 ## DATA
-ArticleProvider = require('./articleprovider-memory').ArticleProvider
-articleProvider = new ArticleProvider()
-articleProvider.save([
-  {title: 'ArticleProvider Article one', body: 'Body one'},
-  {title: 'ArticleProvider Article two', body: 'Body two'},
-  {title: 'ArticleProvider Article three', body: 'Body three'}
-], (error, articles) ->)
+
+ArticleProvider = require('./articleprovider-mongodb').ArticleProvider
+articleProvider = new ArticleProvider('localhost', 27017, 'node-mongo-blog')
 
 ## DYNAMIC HELPERS
 
@@ -110,7 +106,7 @@ app.post('/articles', (req, res) ->
 		(error, articles) -> 
 			req.flash 'info', 'You successfully created a new article'
 			lastArticleID = articles[articles.length-1]._id
-			res.redirect("/articles/#{lastArticleID}")
+			res.redirect("/articles/#{lastArticleID.toHexString()}")
 		)
 )
 

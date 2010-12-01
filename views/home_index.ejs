@@ -2,6 +2,7 @@
 <h1><%= title %></h1>
 <% for(var i=0; i<articles.length; i++) {%>
  <ul>
-    <li><a href="articles/<%= articles[i]._id %>"><%= articles[i].title %></a></li>
+    <li><a href="articles/<%= articles[i]._id.toHexString() %>"><%= articles[i].title %></a></li>
  </ul>
 <% } %>
+<a href="/articles/new">New article</a>

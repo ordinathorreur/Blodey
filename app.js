@@ -20,20 +20,8 @@
   app.configure('development', function() {
     return app.use(express.errorHandler());
   });
-  ArticleProvider = require('./articleprovider-memory').ArticleProvider;
-  articleProvider = new ArticleProvider();
-  articleProvider.save([
-    {
-      title: 'ArticleProvider Article one',
-      body: 'Body one'
-    }, {
-      title: 'ArticleProvider Article two',
-      body: 'Body two'
-    }, {
-      title: 'ArticleProvider Article three',
-      body: 'Body three'
-    }
-  ], function(error, articles) {});
+  ArticleProvider = require('./articleprovider-mongodb').ArticleProvider;
+  articleProvider = new ArticleProvider('localhost', 27017, 'node-mongo-blog2');
   app.dynamicHelpers({
     messages: function(req, res) {
       return function() {
@@ -91,7 +79,7 @@
       ], function(error, articles) {
         var lastArticleID;
         req.flash('info', 'You successfully created a new article');
-        lastArticleID = articles[articles.length - 1]._id;
+        lastArticleID = articles[articles.length - 1]._id.toHexString();
         return res.redirect("/articles/" + lastArticleID);
       });
     }
