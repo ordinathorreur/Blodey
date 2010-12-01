@@ -56,7 +56,7 @@ app.dynamicHelpers(
 				# target object is our messages
 				object: messages,
 				# We want it to be named "types" in the partial since they are keyed like this:
-        # e.g. { info: ['foo'], error: ['bar']}
+				# e.g. { info: ['foo'], error: ['bar']}
 				as: 'types',
 				# pass a local 'hasMessages so we can easily check if we have any messages
 				locals: {	hasMessages: Object.keys(messages).length	},
