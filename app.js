@@ -3,6 +3,8 @@
   express = require("express");
   app = express.createServer();
   app.configure(function() {
+    app.use(express.cookieDecoder());
+    app.use(express.session());
     app.use(express.methodOverride());
     app.use(express.bodyDecoder());
     app.use(app.router);
@@ -22,19 +24,32 @@
   articleProvider = new ArticleProvider();
   articleProvider.save([
     {
-      _id: "1",
       title: 'ArticleProvider Article one',
       body: 'Body one'
     }, {
-      _id: "2",
       title: 'ArticleProvider Article two',
       body: 'Body two'
     }, {
-      _id: "3",
       title: 'ArticleProvider Article three',
       body: 'Body three'
     }
   ], function(error, articles) {});
+  app.dynamicHelpers({
+    messages: function(req, res) {
+      return function() {
+        var messages;
+        messages = req.flash();
+        return res.partial('messages', {
+          object: messages,
+          as: 'types',
+          locals: {
+            hasMessages: Object.keys(messages).length
+          },
+          dynamicHelpers: false
+        });
+      };
+    }
+  });
   app.get('/', function(req, res) {
     return articleProvider.findAll(function(error, articles) {
       return res.render('home_index', {
@@ -64,21 +79,22 @@
     });
   });
   app.post('/articles', function(req, res) {
-    console.log(req.body.article);
-    if (req.body.article.title == null) {
-      res.send("No title");
+    if (!((req.body.article.title != null) && (req.body.article.body != null))) {
+      req.flash('info', 'Please enter a title and a body');
+      return res.render('articles_new');
+    } else {
+      return articleProvider.save([
+        {
+          title: req.body.article.title,
+          body: req.body.article.body
+        }
+      ], function(error, articles) {
+        var lastArticleID;
+        req.flash('info', 'You successfully created a new article');
+        lastArticleID = articles[articles.length - 1]._id;
+        return res.redirect("/articles/" + lastArticleID);
+      });
     }
-    if (req.body.article.body == null) {
-      res.send("No body");
-    }
-    return articleProvider.save([
-      {
-        title: req.body.article.title,
-        body: req.body.article.body
-      }
-    ], function(error, articles) {
-      return res.send("OK, we have saved a new article");
-    });
   });
   app.listen(3000);
 }).call(this);
