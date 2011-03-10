@@ -7,7 +7,7 @@ Then use npm to install some other dependencies:
   npm install express
   npm install ejs
   npm install mongodb
-  npm install coffescript
+  npm install coffee-script
 
 To compilerate those coffeescripts:
 
